@@ -1,0 +1,35 @@
+{
+    "name"       : "rarst/phpcs-cognitive-complexity",
+    "description": "Cognitive complexity implementation for PHP_CodeSniffer",
+    "keywords"   : [
+        "phpcs",
+        "standards"
+    ],
+    "type"       : "phpcodesniffer-standard",
+    "license"    : "MIT",
+    "authors"    : [
+        {
+            "name"    : "Andrey Savchenko",
+            "homepage": "https://www.Rarst.net/"
+        }
+    ],
+    "support"    : {
+        "source": "https://github.com/Rarst/phpcs-cognitive-complexity",
+        "issues": "https://github.com/Rarst/phpcs-cognitive-complexity/issues"
+    },
+    "require"    : {
+        "php": ">=7.2"
+    },
+    "autoload"   : {
+        "psr-4": {
+            "Rarst\\PHPCS\\": "src/"
+        }
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.5",
+        "pds/skeleton"             : "^1.0"
+    },
+    "suggest"    : {
+        "dealerdirect/phpcodesniffer-composer-installer": "Installer plugin for automatic standard registration."
+    }
+}

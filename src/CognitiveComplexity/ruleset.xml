@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<ruleset name="CognitiveComplexity">
+    <description>A cognitive complexity implementation</description>
+
+    <autoload>Analyzer.php</autoload>
+
+    <rule ref="CognitiveComplexity.Complexity.MaximumComplexity">
+        <properties>
+            <property name="maxCognitiveComplexity" value="15"/>
+        </properties>
+    </rule>
+</ruleset>
