@@ -24,7 +24,7 @@ final class Analyzer
      * B1. Increments
      * @var int[]|string[]
      */
-    private $increasingTokens = [
+    private $increments = [
         T_IF,
         T_ELSE,
         T_ELSEIF,
@@ -36,6 +36,7 @@ final class Analyzer
         T_CATCH,
 
         T_BOOLEAN_AND, // &&
+        T_BOOLEAN_OR, // ||
     ];
 
     /**
@@ -126,7 +127,7 @@ final class Analyzer
      */
     private function isIncrementingToken(array $token, array $tokens, int $position): bool
     {
-        if (in_array($token['code'], $this->increasingTokens, true)) {
+        if (in_array($token['code'], $this->increments, true)) {
             return true;
         }
 

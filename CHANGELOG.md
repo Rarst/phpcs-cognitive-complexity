@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Fixed
+- binary OR not handled as increment
+
 ## 0.1 - 2019-12-23
 
 ### Added
