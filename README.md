@@ -30,7 +30,7 @@ phpcs --standard=phpcs-cognitive-complexity/src/CognitiveComplexity /path/to/sca
 
 ## Credits
 
-Initial code forked from [Simplify Coding Standard](https://github.com/Symplify/Symplify).
+Initial code forked from [Symplify Coding Standard](https://github.com/Symplify/Symplify).
 
 ## License
 
