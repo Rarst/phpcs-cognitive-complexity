@@ -6,7 +6,7 @@ namespace Rarst\PHPCS\CognitiveComplexity\Sniffs\Complexity;
 
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
-use Rarst\Phpcs\CognitiveComplexity\Analyzer;
+use Rarst\PHPCS\CognitiveComplexity\Analyzer;
 
 final class MaximumComplexitySniff implements Sniff
 {

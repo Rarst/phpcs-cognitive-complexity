@@ -6,7 +6,7 @@ use Iterator;
 use PHP_CodeSniffer\Config;
 use PHP_CodeSniffer\Tokenizers\PHP;
 use PHPUnit\Framework\TestCase;
-use Rarst\Phpcs\CognitiveComplexity\Analyzer;
+use Rarst\PHPCS\CognitiveComplexity\Analyzer;
 use stdClass;
 
 final class AnalyzerTest extends TestCase
