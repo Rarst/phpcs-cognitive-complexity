@@ -30,53 +30,57 @@ final class Analyzer
      *
      * @var int[]|string[]
      */
-    private $increments = [
-        T_IF,
-        T_ELSE,
-        T_ELSEIF,
-        T_SWITCH,
-        T_FOR,
-        T_FOREACH,
-        T_WHILE,
-        T_DO,
-        T_CATCH,
+    private const increments = [
+        T_IF      => T_IF,
+        T_ELSE    => T_ELSE,
+        T_ELSEIF  => T_ELSEIF,
+        T_SWITCH  => T_SWITCH,
+        T_FOR     => T_FOR,
+        T_FOREACH => T_FOREACH,
+        T_WHILE   => T_WHILE,
+        T_DO      => T_DO,
+        T_CATCH   => T_CATCH,
     ];
 
     /** @var int[]|string[] */
-    private $booleanOperators = [
-        T_BOOLEAN_AND, // &&
-        T_BOOLEAN_OR, // ||
+    private const booleanOperators = [
+        T_BOOLEAN_AND => T_BOOLEAN_AND, // &&
+        T_BOOLEAN_OR  => T_BOOLEAN_OR, // ||
     ];
 
     /** @var int[]|string[] */
-    private $operatorChainBreaks = [
-        T_OPEN_PARENTHESIS,
-        T_CLOSE_PARENTHESIS,
-        T_SEMICOLON,
-        T_INLINE_THEN,
-        T_INLINE_ELSE,
+    private const operatorChainBreaks = [
+        T_OPEN_PARENTHESIS  => T_OPEN_PARENTHESIS,
+        T_CLOSE_PARENTHESIS => T_CLOSE_PARENTHESIS,
+        T_SEMICOLON         => T_SEMICOLON,
+        T_INLINE_THEN       => T_INLINE_THEN,
+        T_INLINE_ELSE       => T_INLINE_ELSE,
     ];
 
     /**
      * B3. Nesting increments
      * @var int[]|string[]
      */
-    private $nestingIncrements = [
-        T_IF,
-        T_INLINE_THEN,
-        T_SWITCH,
-        T_FOR,
-        T_FOREACH,
-        T_WHILE,
-        T_DO,
-        T_CATCH,
+    private const nestingIncrements = [
+        T_IF          => T_IF,
+        T_INLINE_THEN => T_INLINE_THEN,
+        T_SWITCH      => T_SWITCH,
+        T_FOR         => T_FOR,
+        T_FOREACH     => T_FOREACH,
+        T_WHILE       => T_WHILE,
+        T_DO          => T_DO,
+        T_CATCH       => T_CATCH,
     ];
 
     /**
      * B1. Increments
      * @var int[]
      */
-    private $breakingTokens = [T_CONTINUE, T_GOTO, T_BREAK];
+    private const breakingTokens = [
+        T_CONTINUE => T_CONTINUE,
+        T_GOTO     => T_GOTO,
+        T_BREAK    => T_BREAK,
+    ];
 
     /**
      * @param mixed[] $tokens
@@ -108,11 +112,11 @@ final class Analyzer
 
             ++$this->cognitiveComplexity;
 
-            if (in_array($currentToken['code'], $this->breakingTokens, true)) {
+            if (isset(self::breakingTokens[$currentToken['code']])) {
                 continue;
             }
 
-            $isNestingIncrement = in_array($currentToken['code'], $this->nestingIncrements, true);
+            $isNestingIncrement   = isset(self::nestingIncrements[$currentToken['code']]);
             $measuredNestingLevel = $this->getMeasuredNestingLevel($currentToken, $tokens, $position);
 
             // B3. Nesting increment
@@ -132,13 +136,13 @@ final class Analyzer
     private function resolveBooleanOperatorChain(array $token): void
     {
         // Whenever we cross anything that interrupts possible condition we reset chain.
-        if ($this->lastBooleanOperator && in_array($token['code'], $this->operatorChainBreaks, true)) {
+        if ($this->lastBooleanOperator && isset(self::operatorChainBreaks[$token['code']])) {
             $this->lastBooleanOperator = 0;
 
             return;
         }
 
-        if (!in_array($token['code'], $this->booleanOperators, true)) {
+        if (!isset(self::booleanOperators[$token['code']])) {
             return;
         }
 
@@ -174,7 +178,7 @@ final class Analyzer
      */
     private function isIncrementingToken(array $token, array $tokens, int $position): bool
     {
-        if (in_array($token['code'], $this->increments, true)) {
+        if (isset(self::increments[$token['code']])) {
             return true;
         }
 
@@ -184,7 +188,7 @@ final class Analyzer
         }
 
         // B1. goto LABEL, break LABEL, continue LABEL
-        if (in_array($token['code'], $this->breakingTokens, true)) {
+        if (isset(self::breakingTokens[$token['code']])) {
             $nextToken = $tokens[$position + 1]['code'];
             if ($nextToken !== T_SEMICOLON) {
                 return true;
