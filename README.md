@@ -28,6 +28,10 @@ git clone https://github.com/Rarst/phpcs-cognitive-complexity
 phpcs --standard=phpcs-cognitive-complexity/src/CognitiveComplexity /path/to/scan
 ```
 
+## Limitations
+
+- detection of boolean operator chains is not perfect, due to complexity of many possible cases.
+
 ## Credits
 
 Initial code forked from [Symplify Coding Standard](https://github.com/Symplify/Symplify).

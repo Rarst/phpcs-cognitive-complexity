@@ -6,11 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 0.2 - 2019-12-24
+
 ### Added
-- correct calculation of operator chains
+- calculation of boolean operator chains
+- sniff unit test
 
 ### Fixed
 - binary OR not handled as increment
+- handling of code namespace
+- forked code for consistency with PHPCS upstream
 
 ## 0.1 - 2019-12-23
 
