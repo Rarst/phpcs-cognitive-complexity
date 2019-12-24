@@ -45,17 +45,17 @@ final class MaximumComplexitySniff implements Sniff
             return;
         }
 
-        $method = $tokens[$stackPtr + 2]['content'];
+        $name = $tokens[$stackPtr + 2]['content'];
 
         $phpcsFile->addError(
-            sprintf(
-                'Cognitive complexity for method "%s" is %d but has to be less than or equal to %d.',
-                $method,
+            'Cognitive complexity for "%s" is %d but has to be less than or equal to %d.',
+            $stackPtr,
+            'TooHigh',
+            [
+                $name,
                 $cognitiveComplexity,
                 $this->maxCognitiveComplexity
-            ),
-            $stackPtr,
-            self::class
+            ]
         );
     }
 }
