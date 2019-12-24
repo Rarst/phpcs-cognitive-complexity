@@ -1,8 +1,6 @@
 <?xml version="1.0"?>
-<ruleset name="CognitiveComplexity">
+<ruleset name="CognitiveComplexity" namespace="Rarst\PHPCS\CognitiveComplexity" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
     <description>A cognitive complexity implementation</description>
-
-    <autoload>Analyzer.php</autoload>
 
     <rule ref="CognitiveComplexity.Complexity.MaximumComplexity">
         <properties>
