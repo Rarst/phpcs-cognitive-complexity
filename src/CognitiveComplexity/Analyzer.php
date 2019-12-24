@@ -20,8 +20,14 @@ final class Analyzer
     /** @var bool */
     private $isInTryConstruction = false;
 
+    /** @var int */
+    private $lastBooleanOperator = 0;
+
     /**
      * B1. Increments
+     *
+     * Boolean operators are handled separately due to their chain logic.
+     *
      * @var int[]|string[]
      */
     private $increments = [
@@ -34,9 +40,21 @@ final class Analyzer
         T_WHILE,
         T_DO,
         T_CATCH,
+    ];
 
+    /** @var int[]|string[] */
+    private $booleanOperators = [
         T_BOOLEAN_AND, // &&
         T_BOOLEAN_OR, // ||
+    ];
+
+    /** @var int[]|string[] */
+    private $operatorChainBreaks = [
+        T_OPEN_PARENTHESIS,
+        T_CLOSE_PARENTHESIS,
+        T_SEMICOLON,
+        T_INLINE_THEN,
+        T_INLINE_ELSE,
     ];
 
     /**
@@ -75,12 +93,14 @@ final class Analyzer
         $functionEndPosition = $tokens[$position]['scope_closer'];
 
         $this->isInTryConstruction = false;
+        $this->lastBooleanOperator = 0;
         $this->cognitiveComplexity = 0;
 
         for ($i = $functionStartPosition + 1; $i < $functionEndPosition; ++$i) {
             $currentToken = $tokens[$i];
 
             $this->resolveTryControlStructure($currentToken);
+            $this->resolveBooleanOperatorChain($currentToken);
 
             if (!$this->isIncrementingToken($currentToken, $tokens, $i)) {
                 continue;
@@ -102,6 +122,33 @@ final class Analyzer
         }
 
         return $this->cognitiveComplexity;
+    }
+
+    /**
+     * Keep track of consecutive matching boolean operators, that don't receive increment.
+     *
+     * @param mixed[] $token
+     */
+    private function resolveBooleanOperatorChain(array $token): void
+    {
+        // Whenever we cross anything that interrupts possible condition we reset chain.
+        if ($this->lastBooleanOperator && in_array($token['code'], $this->operatorChainBreaks, true)) {
+            $this->lastBooleanOperator = 0;
+
+            return;
+        }
+
+        if (!in_array($token['code'], $this->booleanOperators, true)) {
+            return;
+        }
+
+        // If we match last operator, there is no increment added for current one.
+        if ($this->lastBooleanOperator === $token['code']) {
+            return;
+        }
+
+        ++$this->cognitiveComplexity;
+        $this->lastBooleanOperator = $token['code'];
     }
 
     /**

@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+- correct calculation of operator chains
+
 ### Fixed
 - binary OR not handled as increment
 
