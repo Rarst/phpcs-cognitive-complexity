@@ -30,31 +30,31 @@ final class MaximumComplexitySniff implements Sniff
     }
 
     /**
-     * @param int $position
+     * @param int $stackPtr
      */
-    public function process(File $file, $position): void
+    public function process(File $phpcsFile, $stackPtr): void
     {
-        $tokens = $file->getTokens();
+        $tokens = $phpcsFile->getTokens();
 
         $cognitiveComplexity = $this->analyzer->computeForFunctionFromTokensAndPosition(
             $tokens,
-            $position
+            $stackPtr
         );
 
         if ($cognitiveComplexity <= $this->maxCognitiveComplexity) {
             return;
         }
 
-        $method = $tokens[$position + 2]['content'];
+        $method = $tokens[$stackPtr + 2]['content'];
 
-        $file->addError(
+        $phpcsFile->addError(
             sprintf(
                 'Cognitive complexity for method "%s" is %d but has to be less than or equal to %d.',
                 $method,
                 $cognitiveComplexity,
                 $this->maxCognitiveComplexity
             ),
-            $position,
+            $stackPtr,
             self::class
         );
     }
