@@ -4,6 +4,8 @@ namespace Rarst\PHPCS\CognitiveComplexity\Tests;
 
 use Iterator;
 use PHP_CodeSniffer\Config;
+use PHP_CodeSniffer\Ruleset;
+use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Tokenizers\PHP;
 use PHPUnit\Framework\TestCase;
 use Rarst\PHPCS\CognitiveComplexity\Analyzer;
@@ -24,21 +26,12 @@ final class AnalyzerTest extends TestCase
      */
     public function test(string $filePath, int $expectedCognitiveComplexity): void
     {
-        $fileContent = file_get_contents($filePath);
-        $tokens = $this->fileToTokens($fileContent);
-        $functionTokenPosition = null;
-        foreach ($tokens as $position => $token) {
-            if ($token['code'] === T_FUNCTION) {
-                $functionTokenPosition = $position;
-                break;
-            }
-        }
-
+        $file = $this->fileFactory($filePath);
+        $functionTokenPos = $file->findNext(T_FUNCTION, 0);
         $cognitiveComplexity = $this->analyzer->computeForFunctionFromTokensAndPosition(
-            $tokens,
-            $functionTokenPosition
+            $file,
+            $functionTokenPos
         );
-
         $this->assertSame($expectedCognitiveComplexity, $cognitiveComplexity);
     }
 
@@ -49,7 +42,7 @@ final class AnalyzerTest extends TestCase
     {
         yield [__DIR__ . '/Data/function.php.inc', 9];
         yield [__DIR__ . '/Data/function2.php.inc', 6];
-        yield [__DIR__ . '/Data/function3.php.inc', 1];
+        yield [__DIR__ . '/Data/function3.php.inc', 9];
         yield [__DIR__ . '/Data/function4.php.inc', 2];
         yield [__DIR__ . '/Data/function5.php.inc', 19];
         yield [__DIR__ . '/Data/function6.php.inc', 0];
@@ -60,23 +53,17 @@ final class AnalyzerTest extends TestCase
     }
 
     /**
-     * @return mixed[]
+     * @param string $filePath
+     *
+     * @return File
      */
-    private function fileToTokens(string $fileContent): array
+    private function fileFactory($filePath)
     {
-        return (new PHP($fileContent, $this->getLegacyConfig()))->getTokens();
-    }
-
-    /**
-     * @return Config|stdClass
-     */
-    private function getLegacyConfig()
-    {
-        $config = new stdClass();
-        $config->tabWidth = 4;
-        $config->annotations = false;
-        $config->encoding = 'UTF-8';
-
-        return $config;
+        $config = new Config();
+        $ruleset = new Ruleset($config);
+        $file = new File($filePath, $ruleset, $config);
+        $file->setContent(\file_get_contents($filePath));
+        $file->parse();
+        return $file;
     }
 }
