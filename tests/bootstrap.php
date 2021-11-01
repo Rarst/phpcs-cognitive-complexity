@@ -13,3 +13,8 @@ if (! defined('PHP_CODESNIFFER_VERBOSITY')) {
     // initialize custom T_* token constants used by PHP_CodeSniffer parser
     new Tokens();
 }
+
+// The below two defines are needed for PHPCS 3.x.
+if (defined('PHP_CODESNIFFER_CBF') === false) {
+    define('PHP_CODESNIFFER_CBF', false);
+}
