@@ -24,7 +24,7 @@ final class Analyzer
      *
      * @var int[]|string[]
      */
-    private const INCREMENTS = [
+    private const increments = [
         T_IF      => T_IF,
         T_ELSE    => T_ELSE,
         T_ELSEIF  => T_ELSEIF,
@@ -37,13 +37,13 @@ final class Analyzer
     ];
 
     /** @var int[]|string[] */
-    private const BOOLEAN_OPERATORS = [
+    private const booleanOperators = [
         T_BOOLEAN_AND => T_BOOLEAN_AND, // &&
         T_BOOLEAN_OR  => T_BOOLEAN_OR, // ||
     ];
 
     /** @var int[]|string[] */
-    private const OPERATOR_CHAIN_BREAKS = [
+    private const operatorChainBreaks = [
         T_OPEN_PARENTHESIS  => T_OPEN_PARENTHESIS,
         T_CLOSE_PARENTHESIS => T_CLOSE_PARENTHESIS,
         T_SEMICOLON         => T_SEMICOLON,
@@ -53,10 +53,9 @@ final class Analyzer
 
     /**
      * B3. Nesting increments
-     *
      * @var int[]|string[]
      */
-    private const NESTING_INCREMENTS = [
+    private const nestingIncrements = [
         T_CLOSURE     => T_CLOSURE,
         T_IF          => T_IF,
         T_INLINE_THEN => T_INLINE_THEN,
@@ -70,10 +69,9 @@ final class Analyzer
 
     /**
      * B1. Increments
-     *
      * @var int[]
      */
-    private const BREAKING_TOKENS = [
+    private const breakingTokens = [
         T_CONTINUE => T_CONTINUE,
         T_GOTO     => T_GOTO,
         T_BREAK    => T_BREAK,
@@ -147,12 +145,12 @@ final class Analyzer
 
             ++$this->cognitiveComplexity;
 
-            $addNestingIncrement = isset(self::NESTING_INCREMENTS[$currentToken['code']]);
+            $addNestingIncrement = isset(self::nestingIncrements[$currentToken['code']]);
             if (!$addNestingIncrement) {
                 continue;
             }
             $measuredNestingLevel = \count(\array_filter($levelStack, function ($token) {
-                return \in_array($token['code'], self::NESTING_INCREMENTS);
+                return \in_array($token['code'], self::nestingIncrements);
             }));
             if ($isNestingToken) {
                 $measuredNestingLevel--;
@@ -169,18 +167,18 @@ final class Analyzer
     /**
      * Keep track of consecutive matching boolean operators, that don't receive increment.
      *
-     * @param mixed[] $token token
+     * @param mixed[] $token
      */
     private function resolveBooleanOperatorChain(array $token): void
     {
         // Whenever we cross anything that interrupts possible condition we reset chain.
-        if ($this->lastBooleanOperator && isset(self::OPERATOR_CHAIN_BREAKS[$token['code']])) {
+        if ($this->lastBooleanOperator && isset(self::operatorChainBreaks[$token['code']])) {
             $this->lastBooleanOperator = 0;
 
             return;
         }
 
-        if (!isset(self::BOOLEAN_OPERATORS[$token['code']])) {
+        if (!isset(self::booleanOperators[$token['code']])) {
             return;
         }
 
@@ -194,13 +192,12 @@ final class Analyzer
     }
 
     /**
-     * @param mixed[] $token    token to test
-     * @param mixed[] $tokens   all function tokens
-     * @param int     $position token index
+     * @param mixed[] $token
+     * @param mixed[] $tokens
      */
     private function isIncrementingToken(array $token, array $tokens, int $position): bool
     {
-        if (isset(self::INCREMENTS[$token['code']])) {
+        if (isset(self::increments[$token['code']])) {
             return true;
         }
 
@@ -210,7 +207,7 @@ final class Analyzer
         }
 
         // B1. goto LABEL, break LABEL, continue LABEL
-        if (isset(self::BREAKING_TOKENS[$token['code']])) {
+        if (isset(self::breakingTokens[$token['code']])) {
             $nextToken = $this->phpcsFile->findNext(Tokens::$emptyTokens, $position + 1, null, true);
             if ($nextToken === false || $tokens[$nextToken]['code'] !== T_SEMICOLON) {
                 return true;
