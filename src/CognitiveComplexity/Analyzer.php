@@ -132,7 +132,8 @@ final class Analyzer
                 $levelStack[] = $currentToken;
                 $levelIncreased = false;
             } elseif (isset($tokens[$i - 1]) && $currentToken['level'] < $tokens[$i - 1]['level']) {
-                \array_pop($levelStack);
+                $diff = $tokens[$i - 1]['level'] - $currentToken['level'];
+                \array_splice($levelStack, 0 - $diff);
             } elseif (isset($tokens[$i - 1]) && $currentToken['level'] > $tokens[$i - 1]['level']) {
                 $levelIncreased = true;
             }
