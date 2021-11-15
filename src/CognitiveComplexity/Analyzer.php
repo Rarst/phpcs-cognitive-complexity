@@ -57,6 +57,8 @@ final class Analyzer
      */
     private const nestingIncrements = [
         T_CLOSURE     => T_CLOSURE,
+        T_ELSEIF      => T_ELSEIF,  // increments, but does not receive
+        T_ELSE        => T_ELSE,    // increments, but does not receive
         T_IF          => T_IF,
         T_INLINE_THEN => T_INLINE_THEN,
         T_SWITCH      => T_SWITCH,
@@ -146,7 +148,8 @@ final class Analyzer
 
             ++$this->cognitiveComplexity;
 
-            $addNestingIncrement = isset(self::nestingIncrements[$currentToken['code']]);
+            $addNestingIncrement = isset(self::nestingIncrements[$currentToken['code']])
+                && !\in_array($currentToken['code'], array(T_ELSEIF, T_ELSE));
             if (!$addNestingIncrement) {
                 continue;
             }
