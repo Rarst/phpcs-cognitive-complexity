@@ -26,5 +26,10 @@
     },
     "suggest"    : {
         "dealerdirect/phpcodesniffer-composer-installer": "Installer plugin for automatic standard registration."
+    },
+    "config": {
+        "platform": {
+            "php": "7.2"
+        }
     }
 }
