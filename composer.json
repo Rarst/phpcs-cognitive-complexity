@@ -3,7 +3,8 @@
     "description": "Cognitive complexity implementation for PHP_CodeSniffer",
     "keywords"   : [
         "phpcs",
-        "standards"
+        "standards",
+        "static analysis",
     ],
     "type"       : "phpcodesniffer-standard",
     "license"    : "MIT",
