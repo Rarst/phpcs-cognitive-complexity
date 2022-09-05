@@ -4,7 +4,7 @@
     "keywords"   : [
         "phpcs",
         "standards",
-        "static analysis",
+        "static analysis"
     ],
     "type"       : "phpcodesniffer-standard",
     "license"    : "MIT",
