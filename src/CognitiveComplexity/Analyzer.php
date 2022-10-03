@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Rarst\PHPCS\CognitiveComplexity;
 
+use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Util\Tokens;
+
 /**
  * Based on https://www.sonarsource.com/docs/CognitiveComplexity.pdf
  *
@@ -14,15 +17,6 @@ namespace Rarst\PHPCS\CognitiveComplexity;
  */
 final class Analyzer
 {
-    /** @var int */
-    private $cognitiveComplexity = 0;
-
-    /** @var bool */
-    private $isInTryConstruction = false;
-
-    /** @var int */
-    private $lastBooleanOperator = 0;
-
     /**
      * B1. Increments
      *
@@ -62,6 +56,9 @@ final class Analyzer
      * @var int[]|string[]
      */
     private const nestingIncrements = [
+        T_CLOSURE     => T_CLOSURE,
+        T_ELSEIF      => T_ELSEIF,  // increments, but does not receive
+        T_ELSE        => T_ELSE,    // increments, but does not receive
         T_IF          => T_IF,
         T_INLINE_THEN => T_INLINE_THEN,
         T_SWITCH      => T_SWITCH,
@@ -82,11 +79,23 @@ final class Analyzer
         T_BREAK    => T_BREAK,
     ];
 
+    /** @var int */
+    private $cognitiveComplexity = 0;
+
+    /** @var int */
+    private $lastBooleanOperator = 0;
+
+    private $phpcsFile;
+
     /**
-     * @param mixed[] $tokens
+     * @param File $phpcsFile phpcs File instance
+     * @param int  $position  current index
      */
-    public function computeForFunctionFromTokensAndPosition(array $tokens, int $position): int
+    public function computeForFunctionFromTokensAndPosition(File $phpcsFile, int $position): int
     {
+        $this->phpcsFile = $phpcsFile;
+        $tokens = $phpcsFile->getTokens();
+
         // function without body, e.g. in interface
         if (!isset($tokens[$position]['scope_opener'])) {
             return 0;
@@ -96,14 +105,41 @@ final class Analyzer
         $functionStartPosition = $tokens[$position]['scope_opener'];
         $functionEndPosition = $tokens[$position]['scope_closer'];
 
-        $this->isInTryConstruction = false;
         $this->lastBooleanOperator = 0;
         $this->cognitiveComplexity = 0;
+
+        /*
+            Keep track of parser's level stack
+            We push to this stak whenever we encounter a Tokens::$scopeOpeners
+        */
+        $levelStack = array();
+        /*
+            We look for changes in token[level] to know when to remove from the stack
+            however ['level'] only increases when there are tokens inside {}
+            after pushing to the stack watch for a level change
+        */
+        $levelIncreased = false;
 
         for ($i = $functionStartPosition + 1; $i < $functionEndPosition; ++$i) {
             $currentToken = $tokens[$i];
 
-            $this->resolveTryControlStructure($currentToken);
+            $isNestingToken = false;
+            if (\in_array($currentToken['code'], Tokens::$scopeOpeners)) {
+                $isNestingToken = true;
+                if ($levelIncreased === false && \count($levelStack)) {
+                    // parser's level never increased
+                    // caused by empty condition such as `if ($x) { }`
+                    \array_pop($levelStack);
+                }
+                $levelStack[] = $currentToken;
+                $levelIncreased = false;
+            } elseif (isset($tokens[$i - 1]) && $currentToken['level'] < $tokens[$i - 1]['level']) {
+                $diff = $tokens[$i - 1]['level'] - $currentToken['level'];
+                \array_splice($levelStack, 0 - $diff);
+            } elseif (isset($tokens[$i - 1]) && $currentToken['level'] > $tokens[$i - 1]['level']) {
+                $levelIncreased = true;
+            }
+
             $this->resolveBooleanOperatorChain($currentToken);
 
             if (!$this->isIncrementingToken($currentToken, $tokens, $i)) {
@@ -112,16 +148,20 @@ final class Analyzer
 
             ++$this->cognitiveComplexity;
 
-            if (isset(self::breakingTokens[$currentToken['code']])) {
+            $addNestingIncrement = isset(self::nestingIncrements[$currentToken['code']])
+                && !\in_array($currentToken['code'], array(T_ELSEIF, T_ELSE));
+            if (!$addNestingIncrement) {
                 continue;
             }
-
-            $isNestingIncrement   = isset(self::nestingIncrements[$currentToken['code']]);
-            $measuredNestingLevel = $this->getMeasuredNestingLevel($currentToken, $tokens, $position);
-
+            $measuredNestingLevel = \count(\array_filter($levelStack, function ($token) {
+                return \in_array($token['code'], self::nestingIncrements);
+            }));
+            if ($isNestingToken) {
+                $measuredNestingLevel--;
+            }
             // B3. Nesting increment
-            if ($isNestingIncrement && $measuredNestingLevel > 1) {
-                $this->cognitiveComplexity += $measuredNestingLevel - 1;
+            if ($measuredNestingLevel > 0) {
+                $this->cognitiveComplexity += $measuredNestingLevel;
             }
         }
 
@@ -157,23 +197,6 @@ final class Analyzer
 
     /**
      * @param mixed[] $token
-     */
-    private function resolveTryControlStructure(array $token): void
-    {
-        // code entered "try { }"
-        if ($token['code'] === T_TRY) {
-            $this->isInTryConstruction = true;
-            return;
-        }
-
-        // code left "try { }"
-        if ($token['code'] === T_CATCH) {
-            $this->isInTryConstruction = false;
-        }
-    }
-
-    /**
-     * @param mixed[] $token
      * @param mixed[] $tokens
      */
     private function isIncrementingToken(array $token, array $tokens, int $position): bool
@@ -189,29 +212,12 @@ final class Analyzer
 
         // B1. goto LABEL, break LABEL, continue LABEL
         if (isset(self::breakingTokens[$token['code']])) {
-            $nextToken = $tokens[$position + 1]['code'];
-            if ($nextToken !== T_SEMICOLON) {
+            $nextToken = $this->phpcsFile->findNext(Tokens::$emptyTokens, $position + 1, null, true);
+            if ($nextToken === false || $tokens[$nextToken]['code'] !== T_SEMICOLON) {
                 return true;
             }
         }
 
         return false;
-    }
-
-    /**
-     * @param mixed[] $currentToken
-     * @param mixed[] $tokens
-     */
-    private function getMeasuredNestingLevel(array $currentToken, array $tokens, int $functionTokenPosition): int
-    {
-        $functionNestingLevel = $tokens[$functionTokenPosition]['level'];
-
-        $measuredNestingLevel = $currentToken['level'] - $functionNestingLevel;
-
-        if ($this->isInTryConstruction) {
-            return --$measuredNestingLevel;
-        }
-
-        return $measuredNestingLevel;
     }
 }
