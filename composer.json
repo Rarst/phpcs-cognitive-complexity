@@ -19,18 +19,19 @@
         "issues": "https://github.com/Rarst/phpcs-cognitive-complexity/issues"
     },
     "require"    : {
-        "php": ">=7.2"
+        "php": "^8.0"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.5",
-        "pds/skeleton"             : "^1.0"
+        "pds/skeleton"             : "^1.0",
+        "phpunit/phpunit"          : "^9.5"
     },
     "suggest"    : {
         "dealerdirect/phpcodesniffer-composer-installer": "Installer plugin for automatic standard registration."
     },
     "config": {
         "platform": {
-            "php": "7.2"
+            "php": "8.0"
         }
     }
 }

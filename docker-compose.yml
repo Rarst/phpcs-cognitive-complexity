@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+  app-testing:
+    build:
+      context: .
+    volumes:
+      - .:/app:cached
+      - composer:/home/root/.composer
+volumes:
+  composer:

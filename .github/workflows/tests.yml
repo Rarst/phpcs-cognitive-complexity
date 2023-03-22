@@ -15,8 +15,8 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.2'
-          tools: phpunit:8
+          php-version: '8.0'
+          tools: phpunit:9.5.0
 
       - name: Setup problem matchers for PHPUnit
         run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
