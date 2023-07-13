@@ -16,6 +16,7 @@ The project implements [Cognitive Complexity metric by SonarSource](https://www.
 ```bash
 composer init --no-interaction
 composer require rarst/phpcs-cognitive-complexity squizlabs/php_codesniffer dealerdirect/phpcodesniffer-composer-installer
+vendor/bin/phpcs --config-set installed_paths vendor/rarst/phpcs-cognitive-complexity/src/CognitiveComplexity
 vendor/bin/phpcs --standard=CognitiveComplexity /path/to/scan
 ```
 
