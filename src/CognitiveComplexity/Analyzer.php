@@ -71,6 +71,7 @@ final class Analyzer
         T_WHILE       => T_WHILE,
         T_DO          => T_DO,
         T_CATCH       => T_CATCH,
+        T_MATCH       => T_MATCH,
     ];
 
     /**

@@ -58,6 +58,7 @@ final class AnalyzerTest extends TestCase
         yield [__DIR__ . '/Data/function9.php.inc', 5];
         yield [__DIR__ . '/Data/function10.php.inc', 19];
         yield [__DIR__ . '/Data/function11.php.inc', 1];
+        yield [__DIR__ . '/Data/function12.php.inc', 6];
     }
 
     /**
