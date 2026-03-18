@@ -7,7 +7,7 @@ _Make it maintainable or else._
 [![PHP from Packagist](https://img.shields.io/packagist/php-v/rarst/phpcs-cognitive-complexity.svg)](https://packagist.org/packages/rarst/phpcs-cognitive-complexity)
 [![PDS Skeleton](https://img.shields.io/badge/pds-skeleton-blue.svg)](https://github.com/php-pds/skeleton)
 
-The project implements [Cognitive Complexity metric by SonarSource](https://www.sonarsource.com/resources/white-papers/cognitive-complexity.html) as [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) standard.
+The project implements [Cognitive Complexity metric by SonarSource](https://www.sonarsource.com/resources/white-papers/cognitive-complexity.html) as [PHP_CodeSniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer) standard.
 
 ## Install
 
